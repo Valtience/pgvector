@@ -895,28 +895,24 @@ SparsevecInnerProduct(SparseVector * a, SparseVector * b)
 	float	   *ax = SPARSEVEC_VALUES(a);
 	float	   *bx = SPARSEVEC_VALUES(b);
 	float		distance = 0.0;
-	int			bpos = 0;
+	int			i = 0;
+	int			j = 0;
 
-	for (int i = 0; i < a->nnz; i++)
+	while (i < a->nnz && j < b->nnz)
 	{
 		int			ai = a->indices[i];
+		int			bi = b->indices[j];
 
-		for (int j = bpos; j < b->nnz; j++)
+		if (ai == bi)
 		{
-			int			bi = b->indices[j];
-
-			/* Only update when the same index */
-			if (ai == bi)
-				distance += ax[i] * bx[j];
-
-			/* Update start for next iteration */
-			if (ai >= bi)
-				bpos = j + 1;
-
-			/* Found or passed it */
-			if (bi >= ai)
-				break;
+			distance += ax[i] * bx[j];
+			i++;
+			j++;
 		}
+		else if (ai < bi)
+			i++;
+		else
+			j++;
 	}
 
 	return distance;
